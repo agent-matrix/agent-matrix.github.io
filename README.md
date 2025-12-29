@@ -1,110 +1,75 @@
 # Agent-Matrix
 
-**Alive, governed super‑intelligence for enterprises**
+**Enterprise-grade, governed super-intelligence**
 
-This repository hosts the **Agent‑Matrix public website**, published using **GitHub Pages (Option A: Organization Site)**.
+This repository represents the **public architectural presence** of **Agent-Matrix** — a system designed to operate, govern, and evolve autonomous intelligence safely at enterprise scale.
 
-🌐 **Live site:** [https://agent-matrix.github.io/](https://agent-matrix.github.io/)
-
----
-
-## What is this repository?
-
-This repo exists **only to publish the Agent‑Matrix website**.
-It is the organization‑level GitHub Pages site for the **agent‑matrix** organization.
-
-* The site is built from a **single static `index.html`**
-* No backend, no build step, no Jekyll required
-* Updates are deployed automatically on push to `main`
-
-If you are looking for source code, SDKs, or infrastructure, see the repositories listed below.
+🌐 **Official site:** [https://agent-matrix.github.io/](https://agent-matrix.github.io/)
 
 ---
 
-## How GitHub Pages is configured (Option A)
+## Purpose
 
-This site uses **GitHub Pages → Organization Site**.
+Agent-Matrix is an **AI operating system and network** for organizations building with autonomous agents, tools, and MCP servers.
 
-**Settings → Pages**
+This repository serves as:
 
-* **Source:** Deploy from a branch
-* **Branch:** `main`
-* **Folder:** `/ (root)`
+* The **canonical public entry point** for the Agent-Matrix ecosystem
+* A **high-level architectural and conceptual overview**
+* A reference for how the system fits together at scale
 
-Because the repository name is **`agent-matrix.github.io`**, GitHub automatically publishes:
-
-```
-https://agent-matrix.github.io/
-```
-
-HTTPS is enforced automatically.
+It is intentionally minimal and presentation-focused.
 
 ---
 
-## Repository structure
+## The Agent-Matrix system
 
-```
-/
-├── index.html        # Main site (architecture, system overview, demos)
-├── README.md         # This file
-```
+Agent-Matrix is composed of multiple coordinated subsystems, each with a clear enterprise responsibility:
 
-Everything lives in `index.html` by design to keep publishing simple and robust.
+* **Matrix Hub** — catalog, registry, and system memory
+* **Matrix Guardian** — governance, policy enforcement, and safety controls
+* **Matrix AI** — reasoning, planning, and system intelligence
+* **Matrix Architect** — execution, deployment, and controlled self-evolution
+* **Matrix System** — control plane, CLI/SDK, and human interface
+* **AgentLink** — network layer for discovery, identity, and collaboration
+
+Together, these components form a **living, governed intelligence loop** rather than a collection of isolated services.
 
 ---
 
-## Core platform repositories
+## Ecosystem
 
-These repositories implement the actual Agent‑Matrix system:
-
-* **matrix-hub** — Catalog, registry, memory
-* **matrix-guardian** — Governance, policy, safety
-* **matrix-ai** — Reasoning & planning
-* **matrix-architect** — Execution & controlled self‑repair
-* **matrix-system** — CLI, SDK, control plane
+All production code, SDKs, and infrastructure live in dedicated repositories under the Agent-Matrix organization:
 
 👉 [https://github.com/agent-matrix](https://github.com/agent-matrix)
 
----
+This separation ensures:
 
-## Network & ecosystem
-
-* **network-matrixhub** — AgentLink / network layer
-* **catalog** — Public + private capability catalogs
-* **mcp_ingest** — MCP manifest ingestion
-* **matrix-cli** — Operator interface
-* **matrix-python-sdk** — SDK for integration
-* **infra** — Infrastructure & deployment
+* Clear boundaries between **architecture, presentation, and execution**
+* Independent evolution of system components
+* Enterprise-grade maintainability and governance
 
 ---
 
-## Updating the website
+## Design principles
 
-1. Edit `index.html`
-2. Commit and push to `main`
-3. GitHub Pages redeploys automatically (usually < 1 minute)
+Agent-Matrix is built around a small set of non-negotiable principles:
 
-No build tools required.
-
----
-
-## Why this approach?
-
-* **Zero‑friction publishing**
-* **No CI failures** blocking the site
-* **Maximum reliability** for documentation + demos
-* **Clear separation** between marketing/architecture and production code
-
-This repo is intentionally minimal.
+* **Safety before autonomy** — no uncontrolled execution
+* **Discovery before generation** — reuse proven capability
+* **Governance by default** — auditability, policy, and traceability
+* **Systems over silos** — intelligence as an ecosystem
 
 ---
 
-## License
+## Audience
 
-Site content © Agent‑Matrix.
-Code in other repositories may have separate licenses.
+This repository is intended for:
+
+* Enterprise architects and technical leadership
+* Platform, infrastructure, and AI governance teams
+* Partners evaluating Agent-Matrix as a system foundation
 
 ---
 
-If you are new to the system, start here:
-👉 [https://agent-matrix.github.io/](https://agent-matrix.github.io/)
+© Agent-Matrix. All rights reserved.
