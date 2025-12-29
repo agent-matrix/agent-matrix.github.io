@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#050a06" />
+  <meta name="description" content="Agent-Matrix: The First Alive Super-Intelligence System for Enterprise AI.">
+  <title>Agent-Matrix — The First Alive Super-Intelligence System</title>
+
+  <style>
+    :root{
+      --bg:#050a06;
+      --ink:rgba(235,255,245,.94);
+      --muted:rgba(235,255,245,.72);
+
+      /* darker, readable surfaces */
+      --surface: rgba(6, 14, 8, .78);
+      --surface2: rgba(6, 14, 8, .62);
+      --surface-border: rgba(120, 255, 170, .18);
+
+      --accent:#00ff41;  /* Classic Matrix Green */
+      --accent2:#3cffcc; /* Cyan/Teal mix */
+      --accent-danger:#ff2a2a;
+
+      --shadow:0 18px 70px rgba(0,0,0,.55);
+      --shadow2:0 10px 30px rgba(0,0,0,.45);
+      --radius:16px;
+
+      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+      --navH: 64px;
+    }
+
+    /* Reset & Base */
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; scroll-behavior: smooth; }
+
+    body{
+      margin:0;
+      background: var(--bg);
+      color:var(--ink);
+      font-family:var(--sans);
+      overflow-x:hidden;
+      text-rendering: geometricPrecision;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* === BACKGROUND EFFECTS === */
+    #matrix-canvas{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:-3;
+      opacity:.35;
+    }
+
+    .scanlines{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:-2;
+      background: linear-gradient(to bottom, rgba(255,255,255,.03) 1px, rgba(0,0,0,0) 2px);
+      background-size: 100% 4px;
+      opacity:.2;
+    }
+
+    .vignette{
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+      background: radial-gradient(circle at 50% 50%, rgba(5,10,6,0.2) 0%, rgba(5,10,6,1) 100%);
+    }
+
+    .container{ width:min(1200px, 92vw); margin:0 auto; }
+    a{ text-decoration: none; color: inherit; transition: color 0.2s; }
+
+    /* === NAVIGATION === */
+    .nav{
+      position:sticky;
+      top:0;
+      z-index:100;
+      background: rgba(5,10,6,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom:1px solid var(--surface-border);
+    }
+    .nav-inner{
+      height: var(--navH);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:800;
+      font-size: 1.1rem;
+      letter-spacing:-0.02em;
+    }
+    .logo-symbol{
+      width:20px; height:20px;
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+    .logo-symbol::before{
+      content:""; position: absolute; inset:0; border: 2px solid var(--accent);
+      transform: rotate(45deg); box-shadow: 0 0 10px var(--accent);
+    }
+    .brand small{
+      font-family:var(--mono);
+      color: var(--accent);
+      font-size: 0.75rem;
+      margin-left: 8px;
+      opacity: 0.8;
+    }
+    .nav-links{ display:flex; gap:20px; }
+    .nav-link{
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--muted);
+      position: relative;
+    }
+    .nav-link:hover{ color: var(--accent); }
+    .nav-link::after{
+      content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px;
+      background: var(--accent); transition: width 0.3s ease;
+    }
+    .nav-link:hover::after{ width: 100%; }
+    
+    @media (max-width: 768px){ .nav-links{ display:none; } }
+
+    /* === HERO SECTION === */
+    header.hero{
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      padding: 40px 0;
+      position: relative;
+    }
+    
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:40px;
+      align-items:center;
+    }
+    @media (max-width: 900px){ .hero-grid{ grid-template-columns:1fr; } }
+
+    .hero-content{ position: relative; z-index: 2; }
+    
+    .glitch-wrapper{ position: relative; display: inline-block; }
+    .glitch{
+      font-size:clamp(3rem, 6vw, 5rem);
+      line-height:1.1;
+      font-weight:900;
+      color: #fff;
+      letter-spacing: -0.04em;
+      position: relative;
+    }
+    .glitch::before, .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+    }
+    .glitch::before {
+      left: 2px;
+      text-shadow: -1px 0 #ff00c1;
+      clip: rect(44px, 450px, 56px, 0);
+      animation: glitch-anim 5s infinite linear alternate-reverse;
+    }
+    .glitch::after {
+      left: -2px;
+      text-shadow: -1px 0 #00fff9;
+      clip: rect(44px, 450px, 56px, 0);
+      animation: glitch-anim2 5s infinite linear alternate-reverse;
+    }
+
+    @keyframes glitch-anim {
+      0% { clip: rect(31px, 9999px, 94px, 0); }
+      20% { clip: rect(6px, 9999px, 8px, 0); }
+      40% { clip: rect(81px, 9999px, 14px, 0); }
+      60% { clip: rect(36px, 9999px, 73px, 0); }
+      80% { clip: rect(61px, 9999px, 19px, 0); }
+      100% { clip: rect(38px, 9999px, 5px, 0); }
+    }
+    @keyframes glitch-anim2 {
+      0% { clip: rect(69px, 9999px, 86px, 0); }
+      20% { clip: rect(4px, 9999px, 3px, 0); }
+      40% { clip: rect(33px, 9999px, 16px, 0); }
+      60% { clip: rect(4px, 9999px, 66px, 0); }
+      80% { clip: rect(13px, 9999px, 32px, 0); }
+      100% { clip: rect(93px, 9999px, 10px, 0); }
+    }
+
+    .hero-subtitle{
+      font-family: var(--mono);
+      color: var(--accent);
+      margin-top: 10px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .hero-desc{
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 24px 0 32px;
+      max-width: 500px;
+      border-left: 2px solid var(--accent);
+      padding-left: 20px;
+    }
+
+    .btn-group{ display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn{
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary{
+      background: var(--accent);
+      color: #000;
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+    }
+    .btn-primary:hover{
+      background: transparent;
+      color: var(--accent);
+      box-shadow: 0 0 25px rgba(0, 255, 65, 0.6);
+    }
+    .btn-outline{
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--surface-border);
+    }
+    .btn-outline:hover{
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* === CONSOLE WINDOW === */
+    .console-window{
+      background: rgba(10, 16, 12, 0.9);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+    }
+    .console-header{
+      background: rgba(255,255,255,0.05);
+      padding: 8px 12px;
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--surface-border);
+    }
+    .dot{ width: 10px; height: 10px; border-radius: 50%; background: #333; }
+    .dot.red{ background: #ff5f56; }
+    .dot.yellow{ background: #ffbd2e; }
+    .dot.green{ background: #27c93f; }
+    
+    .console-body{
+      padding: 16px;
+      color: var(--ink);
+      flex: 1;
+    }
+    .cmd-line{ display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+    .prompt{ color: var(--accent); user-select: none; }
+    .cmd{ color: #fff; font-weight: bold; }
+    .output{ color: var(--muted); margin-bottom: 12px; display: block; white-space: pre-wrap; line-height: 1.4; }
+    .cursor{
+      display: inline-block; width: 8px; height: 15px; background: var(--accent);
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* === ARCHITECTURE DIAGRAM (ANIMATED) === */
+    section { padding: 80px 0; position: relative; }
+    .section-header{ text-align: center; margin-bottom: 60px; }
+    .section-header h2, .section-title h2 { font-size: 2.5rem; margin-bottom: 10px; letter-spacing: -0.03em; }
+    .section-header p, .section-title p { font-family: var(--mono); color: var(--accent); opacity: 0.8; }
+    .section-title { text-align: center; margin-bottom: 60px; }
+
+    .arch-diagram {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, auto);
+        gap: 20px;
+        position: relative;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px;
+    }
+    
+    /* Connecting Lines Layer */
+    .arch-lines {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+    .arch-line {
+        position: absolute;
+        background: var(--surface-border);
+        transition: 0.3s;
+    }
+    
+    /* Nodes */
+    .arch-node {
+        background: var(--surface);
+        border: 1px solid var(--surface-border);
+        border-radius: 12px;
+        padding: 20px;
+        z-index: 1;
+        position: relative;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: var(--shadow2);
+    }
+    .arch-node:hover {
+        border-color: var(--accent);
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+        transform: translateY(-5px);
+    }
+    .arch-node h3 { margin: 10px 0 5px; font-size: 1.1rem; color: #fff; }
+    .arch-node p { font-size: 0.8rem; color: var(--muted); margin: 0; line-height: 1.4; }
+    .arch-icon { font-size: 2rem; }
+
+    /* Specific Grid Placements */
+    .node-hub { grid-column: 2; grid-row: 1; border-color: var(--accent2); } /* Top Center */
+    .node-guardian { grid-column: 1; grid-row: 2; border-color: var(--accent-danger); } /* Left */
+    .node-system { grid-column: 2; grid-row: 2; } /* Center */
+    .node-ai { grid-column: 3; grid-row: 2; border-color: #a855f7; } /* Right */
+    .node-architect { grid-column: 2; grid-row: 3; border-color: var(--accent); } /* Bottom Center */
+
+    /* Signals Animation */
+    .signal {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: #fff;
+        border-radius: 50%;
+        z-index: 2;
+        box-shadow: 0 0 10px #fff;
+        opacity: 0;
+    }
+
+    /* Define animation paths roughly with percentages */
+    @keyframes flow-hub-system {
+        0% { top: 18%; left: 50%; opacity: 1; }
+        100% { top: 45%; left: 50%; opacity: 0; }
+    }
+    @keyframes flow-guardian-ai {
+        0% { top: 50%; left: 20%; opacity: 1; background: var(--accent-danger); box-shadow: 0 0 10px red; }
+        50% { top: 50%; left: 50%; }
+        100% { top: 50%; left: 80%; opacity: 0; background: #a855f7; }
+    }
+    @keyframes flow-ai-architect {
+        0% { top: 50%; left: 80%; opacity: 1; background: #a855f7; }
+        50% { top: 80%; left: 80%; }
+        100% { top: 80%; left: 50%; opacity: 0; background: var(--accent); }
+    }
+
+    .sig-1 { animation: flow-hub-system 3s infinite ease-in-out; }
+    .sig-2 { animation: flow-guardian-ai 4s infinite linear 1s; }
+    .sig-3 { animation: flow-ai-architect 4s infinite ease-out 2.5s; }
+
+    @media (max-width: 768px) {
+        .arch-diagram { display: flex; flex-direction: column; }
+        .arch-lines, .signal { display: none; }
+    }
+
+
+    /* === CARDS GRID === */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    
+    .card {
+        background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+        border: 1px solid var(--surface-border);
+        padding: 24px;
+        border-radius: var(--radius);
+        transition: 0.3s;
+    }
+    .card:hover { background: rgba(255,255,255,0.05); border-color: var(--accent); }
+    .card-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .card h3 { margin: 0; font-size: 1.2rem; }
+    .tag { 
+        font-family: var(--mono); font-size: 0.7rem; padding: 4px 8px; 
+        background: rgba(0,255,65,0.1); color: var(--accent); border-radius: 4px; border: 1px solid rgba(0,255,65,0.2);
+    }
+
+    /* === NEW COMPONENTS SECTION STYLES === */
+    /* Arch Grid Layout */
+    .arch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media(max-width: 900px) { .arch { grid-template-columns: 1fr; } }
+
+    /* Clickable component blocks */
+    .comp{
+      display:block;
+      text-decoration:none;
+      position:relative;
+      transition: border-color 0.2s;
+    }
+    .comp:hover{
+      border-color: rgba(102,255,153,.28);
+    }
+    .comp:focus-visible{
+      outline: 2px solid rgba(102,255,153,.55);
+      outline-offset: 3px;
+    }
+
+    /* Invisible anchor target that scrolls nicely */
+    .comp-anchor{
+      position:absolute;
+      top: -10px;
+      left: 0;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    /* Selected state (applied by JS) */
+    .comp.selected{
+      border-color: rgba(102,255,153,.55);
+      box-shadow: 0 0 0 1px rgba(102,255,153,.16), 0 18px 55px rgba(0,0,0,.25);
+    }
+
+    /* Styles for new card content */
+    .block .top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .block .name { font-weight: bold; font-size: 1.1rem; color: #fff; }
+    .block .role { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+    .block ul { margin: 0; padding-left: 20px; color: var(--muted); font-size: 0.9rem; }
+    .block ul li { margin-bottom: 4px; }
+    
+    /* Detail Panel Specifics */
+    .tagrow { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+    .codebox { 
+        background: rgba(0,0,0,0.5); 
+        padding: 15px; 
+        border-radius: 8px; 
+        font-family: var(--mono); 
+        font-size: 0.85rem; 
+        border: 1px solid var(--surface-border); 
+    }
+    .c { color: var(--muted); }
+
+    /* === WORKFLOW LOOP === */
+    .loop-container {
+        display: flex;
+        gap: 40px;
+        align-items: flex-start;
+    }
+    .steps-list {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .step-item {
+        padding: 20px;
+        border: 1px solid var(--surface-border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        background: rgba(0,0,0,0.3);
+    }
+    .step-item:hover { background: rgba(255,255,255,0.05); }
+    .step-item.active { 
+        border-color: var(--accent); 
+        background: rgba(0,255,65,0.05);
+        box-shadow: inset 4px 0 0 var(--accent);
+    }
+    .step-num {
+        font-family: var(--mono); font-size: 1.5rem; font-weight: bold; color: var(--accent); opacity: 0.5;
+    }
+    .step-content h4 { margin: 0 0 4px 0; }
+    .step-content p { margin: 0; font-size: 0.85rem; color: var(--muted); }
+
+    .step-detail {
+        flex: 1;
+        background: #0d1117;
+        border: 1px solid var(--surface-border);
+        border-radius: 12px;
+        padding: 30px;
+        position: sticky;
+        top: 100px;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+    .code-block {
+        background: #000;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        margin-top: auto;
+        border-left: 3px solid var(--accent);
+    }
+    .code-line { display: block; margin-bottom: 6px; }
+    .cl-prompt { color: var(--accent); }
+    .cl-cmd { color: #fff; }
+    .cl-comment { color: #6a737d; font-style: italic; }
+
+    @media (max-width: 900px) { .loop-container { flex-direction: column; } }
+
+    /* === FOOTER === */
+    footer {
+        border-top: 1px solid var(--surface-border);
+        background: #020402;
+        padding: 60px 0;
+        margin-top: 100px;
+        font-size: 0.9rem;
+        color: var(--muted);
+    }
+    .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    .credits { text-align: right; }
+    .credits a { color: var(--accent); }
+
+    /* === UTILS === */
+    .reveal { opacity: 0; transform: translateY(20px); transition: 0.6s ease-out; }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Background Effects -->
+  <canvas id="matrix-canvas"></canvas>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="logo-symbol"></div>
+        <span>AGENT-MATRIX</span>
+        <small>v1.0.0 ALIVE</small>
+      </div>
+      <div class="nav-links">
+        <a href="#vision" class="nav-link">Vision</a>
+        <a href="#architecture" class="nav-link">Architecture</a>
+        <a href="#workflow" class="nav-link">Workflow</a>
+        <a href="#components" class="nav-link">Components</a>
+        <a href="https://github.com/agent-matrix" class="btn btn-outline" style="padding: 6px 16px; font-size: 0.8rem;">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-subtitle">The AI Operating System</div>
+        <h1 class="glitch-wrapper">
+          <div class="glitch" data-text="SELF-HEALING">SELF-HEALING</div>
+          <div class="glitch" data-text="ENTERPRISE AI">ENTERPRISE AI</div>
+        </h1>
+        <p class="hero-desc">
+          Stop managing chaos. <b>Agent-Matrix</b> is the first "alive" ecosystem that governs, observes, plans, and repairs your AI agents automatically. 
+          <br><br>
+          <i>Powered by MCP, Watsonx, and autonomous governance.</i>
+        </p>
+        <div class="btn-group">
+          <a href="#workflow" class="btn btn-primary">Start The Loop</a>
+          <a href="#architecture" class="btn btn-outline">Explore Matrix</a>
+        </div>
+      </div>
+
+      <!-- Live Console Animation -->
+      <div class="console-window">
+        <div class="console-header">
+          <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+          <span style="margin-left:8px; opacity:0.5;">matrix-guardian --watch</span>
+        </div>
+        <div class="console-body" id="console-output">
+          <!-- Typewriter JS will fill this -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Vision Section -->
+  <section id="vision">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>From Scripts to Organism</h2>
+        <p>Why we built the Agent-Matrix</p>
+      </div>
+      <div class="grid-3">
+        <div class="card reveal">
+          <div class="card-title"><h3>The Brain</h3><span class="tag">Matrix AI</span></div>
+          <p>It doesn't just run code; it thinks about it. When an agent fails, the Brain analyzes the logs and plans a remediation strategy.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-title"><h3>The Immune System</h3><span class="tag">Guardian</span></div>
+          <p>Agents can hallucinate or go rogue. The Guardian enforces policy gates, blocks dangerous actions, and demands human approval.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-title"><h3>The Hands</h3><span class="tag">Architect</span></div>
+          <p>The system autonomously writes code, patches vulnerabilities, runs sandboxed tests, and deploys fixes to production.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture Visualization (The "Wow" Element) -->
+  <section id="architecture">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>The Living Architecture</h2>
+        <p>Visualizing the autonomous feedback loop</p>
+      </div>
+
+      <div class="arch-diagram reveal">
+        <!-- Connecting Signals (Animated) -->
+        <div class="arch-lines">
+            <div class="signal sig-1"></div>
+            <div class="signal sig-2"></div>
+            <div class="signal sig-3"></div>
+        </div>
+
+        <!-- Nodes -->
+        <div class="arch-node node-hub">
+            <div class="arch-icon">🗂️</div>
+            <h3>Matrix Hub</h3>
+            <p>The Central Registry<br>Stores Agents & Skills</p>
+        </div>
+
+        <div class="arch-node node-guardian">
+            <div class="arch-icon">🛡️</div>
+            <h3>Matrix Guardian</h3>
+            <p>The Sentinel<br>Detects Anomalies</p>
+        </div>
+
+        <div class="arch-node node-system">
+            <div class="arch-icon">⚡</div>
+            <h3>Matrix System</h3>
+            <p>The Nervous System<br>Connects Components</p>
+        </div>
+
+        <div class="arch-node node-ai">
+            <div class="arch-icon">🧠</div>
+            <h3>Matrix AI</h3>
+            <p>The Oracle<br>Plans Remediation</p>
+        </div>
+
+        <div class="arch-node node-architect">
+            <div class="arch-icon">🛠️</div>
+            <h3>Matrix Architect</h3>
+            <p>The Executor<br>Applies Fixes</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Workflow Loop Section -->
+  <section id="workflow" style="background: rgba(255,255,255,0.02);">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>The Self-Healing Loop</h2>
+        <p>How the system keeps itself alive</p>
+      </div>
+
+      <div class="loop-container reveal">
+        <div class="steps-list" id="loop-steps">
+            <!-- Populated by JS -->
+        </div>
+        <div class="step-detail">
+            <h3 id="detail-title">Select a step...</h3>
+            <p id="detail-desc" style="color:var(--muted); line-height:1.6; margin-bottom:20px;">...</p>
+            <div class="code-block" id="detail-code">
+                <!-- Code goes here -->
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Components Grid -->
+  <section id="components">
+    <div class="container">
+      <div class="section-title reveal">
+        <h2>🧩 Core Platform Components</h2>
+        <p>click a component (or open a deep link) to see details</p>
+      </div>
+
+      <div class="arch" id="arch">
+        <a class="card block reveal comp" href="#comp-hub" data-comp="hub" aria-label="Matrix Hub — open details">
+          <span id="comp-hub" class="comp-anchor" aria-hidden="true"></span>
+          <div class="top"><div class="name">🗂️ Matrix Hub</div><div class="role">Catalog & Registry</div></div>
+          <ul>
+            <li>Ingests manifests and MCP endpoints (stdio/SSE)</li>
+            <li>Resolves identity, validates, normalizes metadata</li>
+            <li>Indexes for search & intelligence</li>
+            <li>Registers servers with MCP Gateway</li>
+          </ul>
+        </a>
+
+        <a class="card block reveal comp" href="#comp-guardian" data-comp="guardian" aria-label="Matrix Guardian — open details">
+          <span id="comp-guardian" class="comp-anchor" aria-hidden="true"></span>
+          <div class="top"><div class="name">🛡️ Matrix Guardian</div><div class="role">Governance & Safety</div></div>
+          <ul>
+            <li>Policy gates, risk scoring, approvals</li>
+            <li>Audit trails, compliance, security controls</li>
+            <li>No execution without permission</li>
+          </ul>
+        </a>
+
+        <a class="card block reveal comp" href="#comp-ai" data-comp="ai" aria-label="Matrix AI — open details">
+          <span id="comp-ai" class="comp-anchor" aria-hidden="true"></span>
+          <div class="top"><div class="name">🧠 Matrix AI</div><div class="role">Reasoning & Planning</div></div>
+          <ul>
+            <li>Multi-agent planning and remediation</li>
+            <li>System understanding + context reasoning</li>
+            <li>Turns goals into executable plans</li>
+          </ul>
+        </a>
+
+        <a class="card block reveal comp" href="#comp-architect" data-comp="architect" aria-label="Matrix Architect — open details">
+          <span id="comp-architect" class="comp-anchor" aria-hidden="true"></span>
+          <div class="top"><div class="name">🛠️ Matrix Architect</div><div class="role">Execution & Evolution</div></div>
+          <ul>
+            <li>Applies patches, builds, tests, verifies</li>
+            <li>Deploys services and MCP servers</li>
+            <li>Publishes artifacts back to Matrix Hub</li>
+            <li>Enables controlled self-repair</li>
+          </ul>
+        </a>
+
+        <a class="card block reveal comp" href="#comp-system" data-comp="system" aria-label="Matrix System — open details">
+          <span id="comp-system" class="comp-anchor" aria-hidden="true"></span>
+          <div class="top"><div class="name">🖥️ Matrix System</div><div class="role">Ops & Control Plane</div></div>
+          <ul>
+            <li>CLI & SDK, dashboards, orchestration</li>
+            <li>Runtime coordination between components</li>
+            <li>Human interface to super-intelligence</li>
+          </ul>
+        </a>
+
+        <a class="card block reveal comp" href="#comp-agentlink" data-comp="agentlink" aria-label="AgentLink — open details">
+          <span id="comp-agentlink" class="comp-anchor" aria-hidden="true"></span>
+          <div class="top"><div class="name">🌐 AgentLink</div><div class="role">Network Layer</div></div>
+          <ul>
+            <li>Onboarding + identity for new agents/tools/servers</li>
+            <li>Discoverability, reputation, collaboration</li>
+            <li>Professional network for autonomous systems</li>
+          </ul>
+        </a>
+
+        <!-- Detail panel -->
+        <div class="card reveal" style="grid-column: 1 / -1;" id="compDetail" aria-live="polite">
+          <div class="top" style="margin-bottom:8px;">
+            <div>
+              <div class="name" id="compDetailTitle" style="font-weight:900;">Select a component</div>
+              <div class="role" id="compDetailRole" style="margin-top:4px;">to see details</div>
+            </div>
+            <div class="tagrow" style="margin:0; justify-content:flex-end;">
+              <a class="tag" id="compDetailRepo" href="https://github.com/agent-matrix" target="_blank" rel="noopener">open repo</a>
+              <a class="tag" id="compDetailSection" href="#components">components</a>
+            </div>
+          </div>
+
+          <p id="compDetailText" style="margin-top:8px;">
+            Click any component above (or open a link like <span class="tag">#comp-hub</span>) and this panel will explain it.
+          </p>
+
+          <div class="codebox" style="margin-top:12px;" aria-label="Key responsibilities">
+            <div class="c" style="margin-bottom:8px;">Key responsibilities</div>
+            <div id="compDetailBullets"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-content">
+        <div>
+            <div class="brand">
+                <div class="logo-symbol" style="width:16px; height:16px;"></div>
+                <span>AGENT-MATRIX</span>
+            </div>
+            <p style="margin-top:10px; opacity:0.6;">The future of autonomous enterprise infrastructure.</p>
+        </div>
+        <div class="credits">
+            <p>Project by <b>Agent-Matrix</b> Open Source Organization</p>
+            <p>Lead Developer: <a href="https://ruslanmv.com" target="_blank">Ruslan Magana Vsevolodovna</a></p>
+            <p>Contact: <a href="mailto:contact@ruslanmv.com">contact@ruslanmv.com</a></p>
+            <p style="font-size: 0.8rem; margin-top: 10px;">&copy; 2025 Agent-Matrix. MIT License.</p>
+        </div>
+    </div>
+  </footer>
+
+  <script>
+    // === SCROLL REVEAL ===
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // === CONSOLE ANIMATION ===
+    const consoleOutput = document.getElementById('console-output');
+    const logs = [
+        { text: "$ matrix-guardian status", class: "cmd-line" },
+        { text: "[OK] System Nominal. 142 Agents Active.", class: "output" },
+        { text: "$ matrix search 'pdf summarizer'", class: "cmd-line" },
+        { text: "> Found agent: ibm/granite-pdf-v2 (Score: 98%)", class: "output" },
+        { text: "> Verifying manifest signature... Valid.", class: "output" },
+        { text: "$ matrix install agent:granite-pdf-v2", class: "cmd-line" },
+        { text: "> Downloading container...", class: "output" },
+        { text: "[ALERT] Vulnerability detected in library 'urllib3'", class: "output", style: "color:var(--accent-danger)" },
+        { text: "> Triggering Matrix AI for remediation plan...", class: "output", style: "color:var(--accent2)" },
+        { text: "> Plan Generated: Upgrade 'urllib3' to v2.0", class: "output" },
+        { text: "> Matrix Architect executing patch...", class: "output" },
+        { text: "[SUCCESS] Agent patched and deployed.", class: "output", style: "color:var(--accent)" },
+        { text: "$ _", class: "cmd-line" } // Cursor line
+    ];
+
+    let logIndex = 0;
+    async function typeConsole() {
+        if(logIndex >= logs.length) return;
+        
+        const lineData = logs[logIndex];
+        const line = document.createElement('div');
+        
+        if (lineData.class === "cmd-line") {
+            // Typing effect for commands
+            line.className = "cmd-line";
+            line.innerHTML = `<span class="prompt">user@matrix:~$</span> <span class="cmd"></span>`;
+            consoleOutput.appendChild(line);
+            
+            const cmdSpan = line.querySelector('.cmd');
+            const text = lineData.text.replace("$ ", ""); // Remove prompt char from text
+            
+            for(let i=0; i<text.length; i++) {
+                cmdSpan.textContent += text[i];
+                await new Promise(r => setTimeout(r, 50 + Math.random()*50));
+            }
+            // If it's the last line, add cursor
+            if(text === "_") cmdSpan.innerHTML = `<span class="cursor"></span>`;
+            
+        } else {
+            // Instant output for system responses
+            line.className = lineData.class;
+            line.textContent = lineData.text;
+            if(lineData.style) line.style = lineData.style;
+            consoleOutput.appendChild(line);
+            await new Promise(r => setTimeout(r, 400));
+        }
+
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        logIndex++;
+        setTimeout(typeConsole, 300);
+    }
+    
+    // Start console after a delay
+    setTimeout(typeConsole, 1000);
+
+
+    // === INTERACTIVE LOOP ===
+    const steps = [
+        {
+            title: "1. Register",
+            desc: "Agents, tools, and MCP servers join the ecosystem via AgentLink. They are indexed by the Matrix Hub.",
+            code: [
+                { t: "$ matrix register --mcp sse https://my-agent.com", c: "cl-cmd" },
+                { t: "# Hub resolves identity and stores manifest", c: "cl-comment" }
+            ]
+        },
+        {
+            title: "2. Discover",
+            desc: "Humans or other agents search for capabilities using semantic search. 'Reuse before generate'.",
+            code: [
+                { t: "$ matrix search 'legal document analysis'", c: "cl-cmd" },
+                { t: "> Match: agent:legal-bot-v1 (Confidence: 99%)", c: "cl-cmd" }
+            ]
+        },
+        {
+            title: "3. Plan (The Brain)",
+            desc: "Matrix AI analyzes goals or failures. It produces a structured remediation plan.",
+            code: [
+                { t: "detect_error(agent_id='legal-bot')", c: "cl-prompt" },
+                { t: "> Generating Plan: Rollback to v1.2", c: "cl-cmd" }
+            ]
+        },
+        {
+            title: "4. Approve (Guardian)",
+            desc: "The Guardian gates execution based on policy, risk score, and human approval.",
+            code: [
+                { t: "$ matrix approve --job-id 8821", c: "cl-cmd" },
+                { t: "> Policy Check: PASSED. Admin approval required.", c: "cl-cmd" }
+            ]
+        },
+        {
+            title: "5. Execute (Architect)",
+            desc: "The Architect applies patches, runs tests in a sandbox, and deploys the fix.",
+            code: [
+                { t: "> Applying patch...", c: "cl-comment" },
+                { t: "> Running unit tests... PASSED", c: "cl-comment" },
+                { t: "> Deploying to Kubernetes Cluster A...", c: "cl-cmd" }
+            ]
+        }
+    ];
+
+    const stepsList = document.getElementById('loop-steps');
+    const detailTitle = document.getElementById('detail-title');
+    const detailDesc = document.getElementById('detail-desc');
+    const detailCode = document.getElementById('detail-code');
+
+    function renderLoop() {
+        stepsList.innerHTML = '';
+        steps.forEach((step, index) => {
+            const el = document.createElement('div');
+            el.className = `step-item ${index === 0 ? 'active' : ''}`;
+            el.innerHTML = `<span class="step-num">0${index+1}</span><div class="step-content"><h4>${step.title}</h4></div>`;
+            el.onclick = () => activateStep(index);
+            stepsList.appendChild(el);
+        });
+        activateStep(0);
+    }
+
+    function activateStep(index) {
+        document.querySelectorAll('.step-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.step-item')[index].classList.add('active');
+        
+        const s = steps[index];
+        detailTitle.textContent = s.title;
+        detailDesc.textContent = s.desc;
+        detailCode.innerHTML = s.code.map(l => `<span class="code-line ${l.c}">${l.t}</span>`).join('');
+    }
+
+    renderLoop();
+
+    // === MATRIX RAIN (OPTIMIZED) ===
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    const cols = Math.floor(width / 20);
+    const ypos = Array(cols).fill(0);
+
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, width, height);
+
+    function matrix() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = '#0f0';
+        ctx.font = '15pt monospace';
+
+        ypos.forEach((y, ind) => {
+            const text = String.fromCharCode(Math.random() * 128);
+            const x = ind * 20;
+            ctx.fillText(text, x, y);
+            if (y > 100 + Math.random() * 10000) ypos[ind] = 0;
+            else ypos[ind] = y + 20;
+        });
+    }
+    
+    // Reduce frame rate for performance/aesthetic
+    setInterval(matrix, 50);
+
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
+
+    // =============================
+    // Components: click + deep link
+    // =============================
+    const COMPONENTS = {
+      hub: {
+        title: "🗂️ Matrix Hub",
+        role: "Catalog & Registry",
+        text: "Matrix Hub is the system’s source of truth: it registers agents/tools/MCP servers, normalizes metadata, and makes everything searchable and governable.",
+        bullets: [
+          "Stores identity + manifests + provenance (who/what/where/how it was published).",
+          "Indexes for discovery: search, ranking, matching, versions, transports.",
+          "Feeds the rest of the system with “what exists” and “what is trusted”."
+        ],
+        repo: "https://github.com/agent-matrix/matrix-hub"
+      },
+      guardian: {
+        title: "🛡️ Matrix Guardian",
+        role: "Governance & Safety",
+        text: "Matrix Guardian is the gatekeeper: it enforces policies, evaluates risk, and ensures nothing executes without approval rules being satisfied.",
+        bullets: [
+          "Policy gates: network, file writes, secrets access, deploy scope, etc.",
+          "Risk scoring + human-in-the-loop approvals when required.",
+          "Audit trails for compliance: who approved what, and why."
+        ],
+        repo: "https://github.com/agent-matrix/matrix-guardian"
+      },
+      ai: {
+        title: "🧠 Matrix AI",
+        role: "Reasoning & Planning",
+        text: "Matrix AI turns goals and incidents into structured plans: steps, tool selections, expected checks, and safe execution boundaries.",
+        bullets: [
+          "Creates plans that are reviewable + auditable (not just “do stuff”).",
+          "Selects best-fit capabilities: agents, tools, and MCP servers.",
+          "Produces expected checks so execution can be verified."
+        ],
+        repo: "https://github.com/agent-matrix/matrix-ai"
+      },
+      architect: {
+        title: "🛠️ Matrix Architect",
+        role: "Execution & Evolution",
+        text: "Matrix Architect executes approved plans: it applies changes, runs tests, deploys, and publishes resulting artifacts back into the ecosystem for reuse.",
+        bullets: [
+          "Applies patches and runs tests in controlled environments.",
+          "Deploys services/MCP servers and updates the registry.",
+          "Publishes artifacts, logs, and evidence back to Hub for reuse."
+        ],
+        repo: "https://github.com/agent-matrix/matrix-architect"
+      },
+      system: {
+        title: "🖥️ Matrix System",
+        role: "Ops & Control Plane",
+        text: "Matrix System is the operator interface: CLI/SDK and orchestration that coordinates components and provides a reliable way to run the ecosystem day-to-day.",
+        bullets: [
+          "Human interface: CLI/SDK + dashboards-style control plane.",
+          "Orchestration and coordination between Hub/AI/Guardian/Architect.",
+          "Observability hooks: status, events, operational flows."
+        ],
+        repo: "https://github.com/agent-matrix/matrix-system"
+      },
+      agentlink: {
+        title: "🌐 AgentLink",
+        role: "Network Layer",
+        text: "AgentLink is the onboarding + identity network: it helps agents/tools/servers join the ecosystem with profiles, connectivity, and reputation signals.",
+        bullets: [
+          "Onboarding layer for new capabilities entering the Matrix.",
+          "Discovery + reputation: make intelligence connectable and reusable.",
+          "Collaboration layer: enables ecosystems, not isolated deployments."
+        ],
+        repo: "https://github.com/agent-matrix/network-matrixhub"
+      }
+    };
+
+    const compCards = Array.from(document.querySelectorAll('.comp[data-comp]'));
+    const compDetailTitle = document.getElementById('compDetailTitle');
+    const compDetailRole  = document.getElementById('compDetailRole');
+    const compDetailText  = document.getElementById('compDetailText');
+    const compDetailRepo  = document.getElementById('compDetailRepo');
+    const compDetailBullets = document.getElementById('compDetailBullets');
+
+    function escapeHtml(unsafe) {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
+    function renderComp(key){
+      const data = COMPONENTS[key];
+      if(!data) return;
+
+      compCards.forEach(c => c.classList.toggle('selected', c.dataset.comp === key));
+
+      compDetailTitle.textContent = data.title;
+      compDetailRole.textContent = data.role;
+      compDetailText.textContent = data.text;
+
+      compDetailRepo.href = data.repo || "https://github.com/agent-matrix";
+      compDetailRepo.textContent = data.repo ? "open repo" : "open org";
+
+      compDetailBullets.innerHTML = data.bullets
+        .map(b => `<div class="c">• ${escapeHtml(b)}</div>`)
+        .join("");
+    }
+
+    function keyFromHash(){
+      const h = (location.hash || "").toLowerCase();
+      // allow #comp-hub, #comp-guardian, etc
+      if(h.startsWith('#comp-')) return h.replace('#comp-','');
+      // allow #hub, #guardian (optional)
+      if(h.startsWith('#')) return h.replace('#','');
+      return "";
+    }
+
+    function selectFromHash(){
+      const k = keyFromHash();
+      if(COMPONENTS[k]) renderComp(k);
+    }
+
+    // Click handlers (also keeps hash deep-linking)
+    compCards.forEach(card=>{
+      card.addEventListener('click', (e)=>{
+        const key = card.dataset.comp;
+        if(!key) return;
+        // let the hash update happen (deep link),
+        // but update UI immediately for responsiveness.
+        renderComp(key);
+      });
+    });
+
+    window.addEventListener('hashchange', selectFromHash);
+
+    // On load: if deep link exists, show it; otherwise default to Hub
+    if(COMPONENTS[keyFromHash()]){
+      selectFromHash();
+    } else {
+      renderComp('hub');
+    }
+  </script>
+</body>
+</html>
